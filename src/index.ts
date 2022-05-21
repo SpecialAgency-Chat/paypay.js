@@ -8,6 +8,8 @@ class PayPayError extends Error {
   }
 };
 
+type If<T extends boolean, A, B = null> = T extends true ? A : T extends false ? B : A | B;
+
 type PartialPartial<T extends object, K extends keyof T> = { [P in K]?: T[P] } & { [P in Exclude<keyof T, K>]-?: T[P] };
 
 type PayPayResult<S extends string = string> = {
@@ -26,6 +28,66 @@ type PayPayLoginResult<O extends boolean> = PayPayResult<O extends true ? "S0000
     otpPrefix: string,
     otpReferenceId: string
   } : never
+}
+
+type PayPayBalanceResult = PayPayResult<"S0000"> & {
+  payload: {
+    walletSummary: {
+      allTotalBalanceInfo: {
+        balance: number,
+        currency: "JPY"
+      },
+      totalBalanceInfo: {
+        balance: number,
+        currency: "JPY"
+      },
+      transferableBalanceInfo: {
+        balance: number,
+        currency: "JPY"
+      },
+      payoutableBalanceInfo: {
+        balance: number,
+        currency: "JPY"
+      }
+    },
+    walletDetail: {
+      emoneyBalanceInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      prepaidBalanceInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      cashBackBalanceInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      cashBackExpirableBalanceInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      cashBackPendingInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      cashBackPendingBonusLiteInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+      preAuthBalanceInfo: {
+        balance: number,
+        currency: "JPY",
+        usable: boolean
+      } | null,
+    },
+  }
 }
 
 const isSMSRequired = (data: Partial<PayPayLoginResult<boolean>>): data is PayPayLoginResult<false> => {
@@ -47,17 +109,17 @@ enum PayPayLoginStatus {
   OTP_REQUIRED = 1
 }
 
-class PayPay<L extends boolean = false> {
+class PayPay {
   public clientUuid: string;
   public deviceUuid: string;
-  public accessToken?: string;
-  private _logged: L;
+  private _accessToken?: string;
+  private _logged: boolean;
   private readonly _axios: AxiosInstance
   public constructor(clientUuid: string, deviceUuid: string, accessToken?: string) {
     this.clientUuid = clientUuid;
     this.deviceUuid = deviceUuid;
-    this.accessToken = accessToken;
-    this._logged = (accessToken ? true:false) as L; 
+    this._accessToken = accessToken;
+    this._logged = (this._accessToken ? true:false);
     this._axios = Axios.create({ validateStatus: () => true });
   }
   public async login(phoneNumber: string, password: string): Promise<{ readonly status: PayPayLoginStatus.DONE, accessToken: string, refreshToken: string } | { status: PayPayLoginStatus.OTP_REQUIRED, otpPrefix: string, otpReferenceId: string }> {
@@ -91,7 +153,7 @@ class PayPay<L extends boolean = false> {
       return { status: PayPayLoginStatus.OTP_REQUIRED, otpPrefix: data.error.otpPrefix, otpReferenceId: data.error.otpReferenceId };
     }
     if (data.header.resultCode === "S0000") {
-      this._logged = true as L;
+      this._logged = true;
       return { status: PayPayLoginStatus.DONE, accessToken: data.payload!.accessToken, refreshToken: data.payload!.refreshToken }
     }
     throw new PayPayError("INVALID_PASSWORD", "an invalid password provided.");
@@ -124,19 +186,29 @@ class PayPay<L extends boolean = false> {
       headers
     });
     if (data.header.resultCode === "S0000") {
-      this.accessToken = data.payload.accessToken;
-      this._logged = true as L;
+      this._accessToken = data.payload.accessToken;
+      this._logged = true;
       return { status: PayPayLoginStatus.DONE, accessToken: data.payload.accessToken, refreshToken: data.payload.refreshToken }
     }
     throw new PayPayError("OTP_INVALID", "an invalid otp code is provided.");
   }
-  protected checkToken(): this is PayPay<true> {
+  public get logged(): boolean {
+    return this._logged;
+  }
+  protected checkToken(): this is PayPay {
     return !!this._logged;
   }
   public async getBalance() {
     if (!this.checkToken()) throw new PayPayError("NOT_LOGGED", "access token has not set.");
-
+    const { data } = await this._axios.get<PayPayBalanceResult>("https://app3.paypay.ne.jp/bff/v1/getBalanceInfo?includeKycInfo=false&includePending=false&includePendingBonusLite=false&noCache=true&payPayLang=ja", {
+      headers: getHeader(this._accessToken!)
+    });
+    return {
+      balance: data.payload.walletSummary.allTotalBalanceInfo.balance,
+      balancePrepaid: data.payload.walletDetail.prepaidBalanceInfo?.balance,
+      balanceCashback: data.payload.walletDetail.cashBackBalanceInfo?.balance
+    }
   }
 }
 
-export { PayPay, PayPayError, PayPayLoginResult, PayPayLoginStatus, PayPayResult };
+export { PayPay, PayPayError, PayPayLoginResult, PayPayLoginStatus, PayPayResult, PayPayBalanceResult };
