@@ -2,7 +2,7 @@ import Axios from "axios";
 import type { AxiosResponse, AxiosInstance } from "axios";
 import axios from "axios";
 import moment from "moment-timezone";
-import uuid from "uuid";
+import * as uuid from "uuid";
 
 class PayPayError extends Error {
   public constructor(title: string, message: string) {
@@ -31,23 +31,23 @@ type PayPayResult<S extends string = string, M extends string = ""> = {
   };
 };
 
-type PayPayErrorResult = PayPayResult<"S0001"> & { error: {} };
+type PayPayErrorResult<C extends string = "S0001"> = PayPayResult<C> & { error: {} };
 
 type PayPayLoginResult<O extends boolean> = PayPayResult<
   O extends true ? "S0000" : "S1004"
 > & {
   payload: O extends true
-    ? {
-        accessToken: string;
-        refreshToken: string;
-      }
-    : never;
+  ? {
+    accessToken: string;
+    refreshToken: string;
+  }
+  : never;
   error: O extends false
-    ? {
-        otpPrefix: string;
-        otpReferenceId: string;
-      }
-    : never;
+  ? {
+    otpPrefix: string;
+    otpReferenceId: string;
+  }
+  : never;
 };
 
 type PayPayBalanceResult = PayPayResult<"S0000"> & {
@@ -120,12 +120,12 @@ type PayPayHistoryResult = PayPayResult<"S0000"> & {
       dateTime: `${number}-${string}-${string}T${string}:${string}:${string}Z`;
       totalAmount: number;
       orderType:
-        | "P2PRECEIVE"
-        | "REFUND"
-        | "TOPUP"
-        | "CASHBACK"
-        | "P2PSEND"
-        | "ACQUIRING";
+      | "P2PRECEIVE"
+      | "REFUND"
+      | "TOPUP"
+      | "CASHBACK"
+      | "P2PSEND"
+      | "ACQUIRING";
       orderStatus: string;
       orderId: string;
       amountList: {
@@ -178,12 +178,12 @@ type PayPayLinkInfo = PayPayResult<"S0000"> & {
     pendingP2PInfo: {
       orderId: string;
       orderType:
-        | "P2PRECEIVE"
-        | "REFUND"
-        | "TOPUP"
-        | "CASHBACK"
-        | "P2PSEND"
-        | "ACQUIRING";
+      | "P2PRECEIVE"
+      | "REFUND"
+      | "TOPUP"
+      | "CASHBACK"
+      | "P2PSEND"
+      | "ACQUIRING";
       description: string;
       imageUrl: string;
       amount: number;
@@ -297,15 +297,15 @@ class PayPay {
     password: string
   ): Promise<
     | {
-        readonly status: PayPayLoginStatus.DONE;
-        accessToken: string;
-        refreshToken: string;
-      }
+      readonly status: PayPayLoginStatus.DONE;
+      accessToken: string;
+      refreshToken: string;
+    }
     | {
-        status: PayPayLoginStatus.OTP_REQUIRED;
-        otpPrefix: string;
-        otpReferenceId: string;
-      }
+      status: PayPayLoginStatus.OTP_REQUIRED;
+      otpPrefix: string;
+      otpReferenceId: string;
+    }
   > {
     const headers = {
       "Client-UUID": this.clientUuid,
@@ -526,11 +526,27 @@ class PayPay {
       "https://app4.paypay.ne.jp/bff/v2/acceptP2PSendMoneyLink?payPayLang=ja",
       sendData,
       {
-        headers: PayPay.getHeader(this._accessToken!),
+        headers: {
+          'Host': this._host,
+          'Client-Version': await PayPay.getPayPayVersion() as string,
+          'Device-Uuid': this.deviceUuid,
+          'System-Locale': 'ja',
+          'User-Agent': 'PaypayApp/3.41.202205170207 CFNetwork/1126 Darwin/19.5.0',
+          'Network-Status': 'WIFI',
+          'Device-Name': 'iPhone9,1',
+          'Client-Os-Type': 'IOS',
+          'Client-Mode': 'NORMAL',
+          'Client-Type': 'PAYPAYAPP',
+          'Accept-Language': 'ja-jp',
+          'Timezone': 'Asia/Tokyo',
+          'Accept': '*/*',
+          'Client-Uuid': this.clientUuid,
+          'Client-Os-Version': '13.5.0',
+        },
       }
     );
     if (PayPay.isError(data)) throw tokenRevokedError;
-    if (data.header.resultCode !== "S0000") throw new PayPayError("UNKNOWN_ERROR", data);
+    if (data.header.resultCode !== "S0000") throw new PayPayError("UNKNOWN_ERROR", data.header.resultMessage);
     return data;
   }
 }
