@@ -542,6 +542,7 @@ class PayPay {
           'Accept': '*/*',
           'Client-Uuid': this.clientUuid,
           'Client-Os-Version': '13.5.0',
+          "Authorization": `Bearer ${this._accessToken}`,
         },
       }
     );
