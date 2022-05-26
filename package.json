@@ -12,7 +12,8 @@
   "author": "waki285 <suzuneu@suzuneu.com>",
   "license": "ISC",
   "files": [
-    "dist-obfuscated"
+    "dist-obfuscated",
+    "README.md"
   ],
   "dependencies": {
     "axios": "^0.27.2",
