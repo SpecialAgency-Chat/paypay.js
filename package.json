@@ -1,9 +1,9 @@
 {
   "name": "paypay",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Unofficial PayPay API",
-  "main": "dist-obfuscated/index.js",
-  "types": "dist-obfuscated/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -12,7 +12,7 @@
   "author": "waki285 <suzuneu@suzuneu.com>",
   "license": "ISC",
   "files": [
-    "dist-obfuscated",
+    "dist",
     "README.md"
   ],
   "dependencies": {
