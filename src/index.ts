@@ -253,7 +253,7 @@ class PayPay {
   private _logged: boolean;
   private readonly _axios: AxiosInstance;
   private _version: string;
-  private readonly _host = "https://app4.paypay.ne.jp";
+  private readonly _host = "app4.paypay.ne.jp";
   public constructor(options?: PayPayConstructorOptions) {
     this.clientUuid = options?.clientUuid || uuid.v4().toUpperCase();
     this.deviceUuid = options?.deviceUuid || uuid.v4().toUpperCase();
@@ -322,7 +322,7 @@ class PayPay {
     const { data } = await this._axios.post<
       PartialPartial<PayPayLoginResult<boolean>, "error" | "payload">
     >(
-      "https://app4.paypay.ne.jp/bff/v1/signIn?payPayLang=ja",
+      `https://${this._host}/bff/v1/signIn?payPayLang=ja`,
       {
         phoneNumber,
         password,
@@ -373,7 +373,7 @@ class PayPay {
         payload: { accessToken: string; refreshToken: string };
       }
     >(
-      "https://app4.paypay.ne.jp/bff/v1/signInWithSms?payPayLang=ja",
+      `https://${this._host}/bff/v1/signInWithSms?payPayLang=ja`,
       {
         otp,
         otpReferenceId,
@@ -407,7 +407,7 @@ class PayPay {
     const { data } = await this._axios.get<
       PayPayBalanceResult | PayPayErrorResult
     >(
-      "https://app4.paypay.ne.jp/bff/v1/getBalanceInfo?includeKycInfo=false&includePending=false&includePendingBonusLite=false&noCache=true&payPayLang=ja",
+      `https://${this._host}/bff/v1/getBalanceInfo?includeKycInfo=false&includePending=false&includePendingBonusLite=false&noCache=true&payPayLang=ja`,
       {
         headers: PayPay.getHeader(this._accessToken!),
       }
@@ -424,7 +424,7 @@ class PayPay {
     const { data } = await this._axios.get<
       PayPayHistoryResult | PayPayErrorResult
     >(
-      "https://app4.paypay.ne.jp/bff/v2/getPay2BalanceHistory?pageSize=40&payPayLang=ja",
+      `https://${this._host}/bff/v2/getPay2BalanceHistory?pageSize=40&payPayLang=ja`,
       {
         headers: PayPay.getHeader(this._accessToken!),
       }
@@ -453,7 +453,7 @@ class PayPay {
     const { data } = await this._axios.post<
       PayPayExecuteLinkResult | PayPayErrorResult
     >(
-      "https://app4.paypay.ne.jp/bff/v2/executeP2PSendMoneyLink?payPayLang=ja",
+      `https://${this._host}/bff/v2/executeP2PSendMoneyLink?payPayLang=ja`,
       {
         androidMinimumVersion: "2.55.0",
         requestAt: moment(new Date())
@@ -473,7 +473,7 @@ class PayPay {
   }
   public async getLinkInfo(code: string) {
     const { data } = await this._axios.get<PayPayLinkInfo | PayPayErrorResult>(
-      `https://app4.paypay.ne.jp/bff/v2/getP2PLinkInfo?payPayLang=ja&verificationCode=${code}`,
+      `https://${this._host}/bff/v2/getP2PLinkInfo?payPayLang=ja&verificationCode=${code}`,
       {
         headers: PayPay.getHeader(this._accessToken!),
       }
@@ -523,7 +523,7 @@ class PayPay {
       }
     }
     const { data } = await this._axios.post(
-      "https://app4.paypay.ne.jp/bff/v2/acceptP2PSendMoneyLink?payPayLang=ja",
+      `https://${this._host}/bff/v2/acceptP2PSendMoneyLink?payPayLang=ja`,
       sendData,
       {
         headers: {
