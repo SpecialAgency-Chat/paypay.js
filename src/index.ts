@@ -205,7 +205,29 @@ type PayPayUserProfile = {
   firstNameRomaji: string | null,
   gender: unknown,
   payPayIdInfo: unknown,
-  
+  phoneNumber: string,
+  searchablePhoneNumber: true,
+  mailAddress: string | null,
+  changeableMailAddress: boolean,
+  notificationType: unknown,
+  isAuthorizedMailAddress: boolean,
+  emailPendingVerificationInfo: unknown,
+  isPushNotification: boolean,
+  isMerchantStore: boolean,
+  isAlreadySetPassword: boolean,
+  isAlreadySetPasscode: boolean,
+  isAlreadyLinkYconnect: boolean,
+  isAlreadyLinkSoftbank: boolean,
+  isAlreadySetAddress: boolean,
+  linkStatus: object,
+  hasWallet: boolean,
+  isPremium: boolean,
+  isUsingYmobile: boolean,
+  enableSmartLogin: boolean,
+  ymoneyMigrated: boolean,
+  kycInfo: object,
+  userScoreInfo: object,
+  isDeletableAccount: boolean
 }
 
 type PayPayProfile = {
