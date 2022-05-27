@@ -50,14 +50,13 @@ if (loginResult.status === PayPayLoginStatus.DONE) {
 }
 ```
 
-### Get balance
+### Another feature
 
 ```ts
 const paypay = new PayPay({ accessToken: "YOUR_ACCESS_TOKEN" });
-console.log(await paypay.getBalance());
-```
-
-### Get History
-
-```ts
+console.log(await paypay.getBalance()); // get balance
+console.log(await paypay.getHistory()); // get history
+console.log(await paypay.getLinkInfo("L1nKc0dE")); // get send money link info
+console.log(await paypay.acceptLink("L1nKc0dE")); // accept link
+console.log(await paypay.executeLink(100)); // create 100 yen link
 ```
