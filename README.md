@@ -1,6 +1,20 @@
 # PayPay.js
 
+[![npm](https://img.shields.io/npm/v/paypay.js)](https://npmjs.com/package/paypay.js)
+![node version](https://img.shields.io/node/v/paypay.js)
+![keywords](https://img.shields.io/github/package-json/keywords/SpecialAgency-Chat/paypay.js)
+
 > Unofficial PayPay client
+
+## Features
+
+- Login
+- Get balance
+- Get History
+- Accept Link
+- Create Link
+- Send Money
+- Get Account Info
 
 ## How to Use
 
@@ -8,11 +22,42 @@
 
 ```ts
 // CommonJS
-const { PayPay } = require("paypay.js");
+const { PayPay, PayPayLoginStatus } = require("paypay.js");
+const { createInterface } = require("readline");
 
 // ESM or TypeScript
-import { PayPay } from "paypay.js";
+import { PayPay, PayPayLoginStatus } from "paypay.js";
+import { createInterface } from "readline";
+
+const rl = createInterface({
+  stdin: process.stdin,
+  stdout: process.stdout
+})
 
 const paypay = new PayPay();
-await paypay.login("09012345678", "password");
+const loginResult = await paypay.login("09012345678", "password");
+
+if (loginResult.status === PayPayLoginStatus.DONE) {
+  console.log("Logged in!");
+  console.log(`Your access Token: ${loginResult.accessToken}`);
+} else if (loginResult.status === PayPayLoginStatus.OTP_REQUIRED) {
+  console.log("OTP Required");
+  rl.question(`Enter otp code: ${loginResult.otpPrefix}-`, async (answer) => {
+    const otpResult = await paypay.loginOtp(loginResult.otpReferenceId, answer);
+    console.log("Logged in!");
+    console.log(`Your access Token: ${otpResult.accessToken}`);
+  })
+}
+```
+
+### Get balance
+
+```ts
+const paypay = new PayPay({ accessToken: "YOUR_ACCESS_TOKEN" });
+console.log(await paypay.getBalance());
+```
+
+### Get History
+
+```ts
 ```
