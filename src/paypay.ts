@@ -3,7 +3,7 @@ import type { AxiosResponse, AxiosInstance } from "axios";
 import axios from "axios";
 import moment from "moment-timezone";
 import * as uuid from "uuid";
-import { PayPayConstructorOptions, PayPayLoginResult, PayPayLoginStatus, PartialPartial, PayPayResult, PayPayErrorResult, PayPayBalanceResult, PayPayHistoryResult, PayPayExecuteLinkResult, PayPayLinkInfo, PayPayProfileResult } from "./types";
+import { PayPayConstructorOptions, PayPayLoginResult, PayPayLoginStatus, PartialPartial, PayPayResult, PayPayErrorResult, PayPayBalanceResult, PayPayHistoryResult, PayPayExecuteLinkResult, PayPayLinkInfo, PayPayProfileResult, PayPayAcceptLinkResult } from "./types";
 
 class PayPayError extends Error {
   public constructor(title: string, message: string) {
@@ -299,7 +299,7 @@ class PayPay {
         senderMessageId: linkData.payload.message.messageId,
       }
     }
-    const { data } = await this._axios.post(
+    const { data } = await this._axios.post<PayPayAcceptLinkResult | PayPayErrorResult>(
       `https://${this._host}/bff/v2/acceptP2PSendMoneyLink?payPayLang=ja`,
       sendData,
       {

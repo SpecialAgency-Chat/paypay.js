@@ -301,6 +301,8 @@ type PayPayConstructorOptions = {
   deviceUuid?: string;
 };
 
+type PayPayAcceptLinkResult = any;
+
 export {
   PayPayBalanceResult,
   PayPayConstructorOptions,
@@ -319,5 +321,6 @@ export {
   PayPayResult,
   PayPayUser,
   PayPayUserProfile,
+  PayPayAcceptLinkResult,
   PartialPartial
 }
