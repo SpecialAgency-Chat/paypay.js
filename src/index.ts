@@ -559,4 +559,11 @@ export {
   PayPayLoginStatus,
   PayPayResult,
   PayPayBalanceResult,
+  PayPayConstructorOptions,
+  PayPayErrorResult,
+  PayPayExecuteLinkResult,
+  PayPayHistoryResult,
+  PayPayLinkInfo,
+  PayPayLinkTheme,
+  PayPayUser
 };
