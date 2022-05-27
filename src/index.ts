@@ -173,6 +173,61 @@ type PayPayLinkTheme = {
   isShowDarkBackground: boolean;
 };
 
+type PayPayGoogleAnalyticsInfo = {
+  eventCategory: string,
+  eventAction: string
+}
+
+type PayPayProfileGroupItem = {
+  id: string,
+  iconImageUrl: string,
+  title: string,
+  description: string | null,
+  statusText: string | null,
+  tappableCount: number,
+  deeplink: PayPayDeepLink,
+  googleAnalyticsInfo: PayPayGoogleAnalyticsInfo,
+
+}
+
+type PayPayDeepLink = `paypay://${string}`;
+
+type PayPayUserProfile = {
+  avatarImageUrl: string | null,
+  externalUserId: string,
+  displayName: string | null,
+  nickName: string | null,
+  lastName: string | null,
+  firstName: string | null,
+  lastNameKana: string | null,
+  firstNameKana: string | null,
+  lastNameRomaji: string | null,
+  firstNameRomaji: string | null,
+  gender: unknown,
+  payPayIdInfo: unknown,
+  
+}
+
+type PayPayProfile = {
+  myIconList: {
+    id: string,
+    position: number,
+    type: string,
+    imageUrl: string,
+    labelShort: string,
+    labelLong: string,
+    deeplinkUrl: PayPayDeepLink,
+    googleAnalyticsInfo: PayPayGoogleAnalyticsInfo
+  }[],
+  profileGroupList: {
+    title: string | null,
+    itemList: PayPayProfileGroupItem
+  }[],
+  userProfile: PayPayUserProfile
+}
+
+type PayPayProfileResult = PayPayResult<"S0000"> & { payload: PayPayProfile };
+
 type PayPayLinkInfo = PayPayResult<"S0000"> & {
   payload: {
     pendingP2PInfo: {
@@ -472,6 +527,7 @@ class PayPay {
     return data;
   }
   public async getLinkInfo(code: string) {
+    if (!this.checkToken()) throw tokenNotSetError;
     const { data } = await this._axios.get<PayPayLinkInfo | PayPayErrorResult>(
       `https://${this._host}/bff/v2/getP2PLinkInfo?payPayLang=ja&verificationCode=${code}`,
       {
@@ -482,6 +538,7 @@ class PayPay {
     return data;
   }
   public async acceptLink(code: string, passcode?: string) {
+    if (!this.checkToken()) throw tokenNotSetError;
     const linkData = await this.getLinkInfo(code);
     if (linkData.payload.orderStatus !== "PENDING")
       throw new PayPayError(
@@ -548,6 +605,14 @@ class PayPay {
     );
     if (PayPay.isError(data)) throw tokenRevokedError;
     if (data.header.resultCode !== "S0000") throw new PayPayError("UNKNOWN_ERROR", data.header.resultMessage);
+    return data;
+  };
+  public async getProfile() {
+    if (!this.checkToken()) throw tokenNotSetError;
+    const { data } = await axios.get<PayPayProfileResult | PayPayErrorResult>(`https://${this._host}/bff/v2/getProfileDisplayInfo`, {
+      headers: PayPay.getHeader(this._accessToken!)
+    });
+    if (PayPay.isError(data)) throw tokenNotSetError;
     return data;
   }
 }
