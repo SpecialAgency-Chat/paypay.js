@@ -1,6 +1,6 @@
 {
   "name": "paypay.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Unofficial PayPay API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
     "start": "node dist/index.js"
   },
   "author": "waki285 <suzuneu@suzuneu.com>",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "files": [
     "dist",
     "README.md"
@@ -32,5 +32,13 @@
   },
   "keywords": [
     "paypay"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpecialAgency-Chat/paypay.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SpecialAgency-Chat/paypay.js/issues"
+  },
+  "homepage": "https://github.com/SpecialAgency-Chat/paypay.js"
 }
