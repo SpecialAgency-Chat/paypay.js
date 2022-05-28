@@ -83,7 +83,7 @@ class PayPay {
       refreshToken: string;
     }
     | {
-      status: PayPayLoginStatus.OTP_REQUIRED;
+      readonly status: PayPayLoginStatus.OTP_REQUIRED;
       otpPrefix: string;
       otpReferenceId: string;
     }
