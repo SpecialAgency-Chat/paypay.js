@@ -58,13 +58,19 @@ class PayPay {
   ): data is PayPayLoginResult<false> {
     return data.header?.resultCode === "S1004";
   }
-  static getHeader(accessToken: string) {
+  static getHeader(accessToken: string, options?: Omit<PayPayConstructorOptions, "accessToken">) {
     return {
       "User-Agent": "PaypayApp/3.31.202202181001 CFNetwork/1126 Darwin/19.5.0",
       Authorization: `Bearer ${accessToken}`,
       "Client-Type": "PAYPAYAPP",
       "Client-OS-Type": "IOS",
       "Client-Version": "3.31.0",
+      "Client-OS-Version": "13.3.1",
+      "Client-UUID": options?.clientUuid || uuid.v4().toUpperCase(),
+      "Device-UUID": options?.deviceUuid || uuid.v4().toUpperCase(),
+      "Device-Name": "iPad8,3",
+      "Network-Status": "WIFI",
+      "Content-Type": "application/json",
     } as const;
   }
   public async login(
@@ -134,13 +140,13 @@ class PayPay {
     const headers = {
       "Client-UUID": this.clientUuid,
       "Device-UUID": this.deviceUuid,
-      "Client-Version": "3.31.0",
+      "Client-Version": await PayPay.getPayPayVersion() || "3.31.0",
       "Device-Name": "iPad8,3",
       "Client-OS-Type": "IOS",
       "Client-Mode": "NORMAL",
       "Client-Type": "PAYPAYAPP",
       "Content-Type": "application/json",
-      "Client-OS-Version": (await PayPay.getPayPayVersion()) || "13.3.1",
+      "Client-OS-Version": "13.3.1",
       "Network-Status": "WIFI",
     } as const;
     const { data } = await this._axios.post<
@@ -213,7 +219,7 @@ class PayPay {
       "Client-UUID": this.clientUuid,
       "System-Locale": "ja",
       "Device-UUID": this.deviceUuid,
-      "Client-Version": "3.31.0",
+      "Client-Version": await PayPay.getPayPayVersion() || "13.3.1",
       "Device-Name": "iPad8,3",
       "Client-OS-Type": "IOS",
       "Client-Mode": "NORMAL",
@@ -305,7 +311,7 @@ class PayPay {
       {
         headers: {
           'Host': this._host,
-          'Client-Version': await PayPay.getPayPayVersion() as string,
+          'Client-Version': await PayPay.getPayPayVersion() || '3.31.0',
           'Device-Uuid': this.deviceUuid,
           'System-Locale': 'ja',
           'User-Agent': 'PaypayApp/3.41.202205170207 CFNetwork/1126 Darwin/19.5.0',
@@ -330,6 +336,24 @@ class PayPay {
   public async getProfile() {
     if (!this.checkToken()) throw tokenNotSetError;
     const { data } = await axios.get<PayPayProfileResult | PayPayErrorResult>(`https://${this._host}/bff/v2/getProfileDisplayInfo`, {
+      headers: PayPay.getHeader(this._accessToken!)
+    });
+    if (PayPay.isError(data)) throw tokenRevokedError;
+    return data;
+  }
+  public async executeMoney(amount: number, externalReceiverId: string) {
+    if (!this.checkToken()) throw tokenNotSetError;
+    const { data } = await axios.post<any | PayPayErrorResult>(`https://${this._host}/bff/v2/executeP2PSendMoney`, {
+      amount,
+      externalReceiverId,
+      requestAt: moment(new Date())
+        .tz("Asia/Tokyo")
+        .format("YYYY-MM-DDTHH:mm:ss+0900"),
+      requestId: uuid.v4().toUpperCase(),
+      iosMinimumVersion: "2.55.0",
+      androidMinimumVersion: "2.55.0",
+      theme: "default-sendmoney",
+    }, {
       headers: PayPay.getHeader(this._accessToken!)
     });
     if (PayPay.isError(data)) throw tokenRevokedError;
