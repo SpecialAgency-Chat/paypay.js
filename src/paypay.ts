@@ -332,7 +332,7 @@ class PayPay {
     const { data } = await axios.get<PayPayProfileResult | PayPayErrorResult>(`https://${this._host}/bff/v2/getProfileDisplayInfo`, {
       headers: PayPay.getHeader(this._accessToken!)
     });
-    if (PayPay.isError(data)) throw tokenNotSetError;
+    if (PayPay.isError(data)) throw tokenRevokedError;
     return data;
   }
 }
