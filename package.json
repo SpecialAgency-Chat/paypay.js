@@ -1,6 +1,6 @@
 {
   "name": "paypay.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Unofficial PayPay API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
