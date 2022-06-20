@@ -30,8 +30,8 @@ import { PayPay, PayPayLoginStatus } from "paypay.js";
 import { createInterface } from "readline";
 
 const rl = createInterface({
-  stdin: process.stdin,
-  stdout: process.stdout
+  input: process.stdin,
+  output: process.stdout
 })
 
 const paypay = new PayPay();
