@@ -1,3 +1,5 @@
+import type { AxiosProxyConfig } from "axios";
+
 type PartialPartial<T extends object, K extends keyof T> = {
   [P in K]?: T[P];
 } & { [P in Exclude<keyof T, K>]-?: T[P] };
@@ -299,6 +301,7 @@ type PayPayConstructorOptions = {
   accessToken?: string;
   clientUuid?: string;
   deviceUuid?: string;
+  proxy?: AxiosProxyConfig
 };
 
 type PayPayAcceptLinkResult = any;

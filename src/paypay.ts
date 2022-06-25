@@ -34,7 +34,7 @@ class PayPay {
     this.deviceUuid = options?.deviceUuid || uuid.v4().toUpperCase();
     this._accessToken = options?.accessToken;
     this._logged = this._accessToken ? true : false;
-    this._axios = Axios.create({ validateStatus: () => true });
+    this._axios = Axios.create({ validateStatus: () => true, proxy: options?.proxy });
     this._version = "3.41.1";
     this._setPayPayVersion();
   }
