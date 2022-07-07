@@ -99,6 +99,7 @@ class PayPay {
       "Content-Type": "application/json",
       "Client-OS-Version": (await PayPay.getPayPayVersion()) || "13.3.1",
       "Network-Status": "WIFI",
+      "IsEmulator": "false",
     } as const;
     const { data } = await this._axios.post<
       PartialPartial<PayPayLoginResult<boolean>, "error" | "payload">
@@ -107,6 +108,7 @@ class PayPay {
       {
         phoneNumber,
         password,
+        signInAttemptCount: 1,
       },
       {
         headers,
@@ -148,6 +150,7 @@ class PayPay {
       "Content-Type": "application/json",
       "Client-OS-Version": "13.3.1",
       "Network-Status": "WIFI",
+      "IsEmulator": "false",
     } as const;
     const { data } = await this._axios.post<
       PayPayResult<"S0000"> & {
